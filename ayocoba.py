@@ -20,7 +20,7 @@ with st.sidebar:
     st.markdown("### 📋 9 Kategori Sampah yang Didukung:")
     st.info("📦 Cardboard\n\n🍎 Food Waste\n\n🍷 Glass\n\n🔩 Metal\n\n🌀 Miscellaneous\n\n📄 Paper\n\n🥤 Plastic\n\n👕 Textiles\n\n🌿 Vegetation")
     st.divider()
-    # Penanda di sidebar kiri
+    # Penanda hak cipta di sidebar kiri
     st.markdown("<center style='color: #757575; font-size: 14px;'>🛠️ Developed by <b>Kang Adit</b></center>", unsafe_allow_html=True)
     st.caption("<center>Tugas Praktikum Machine Learning v2.0</center>", unsafe_allow_html=True)
 
@@ -74,7 +74,10 @@ if uploaded_images:
             # Membuka gambar
             image = Image.open(uploaded_image).convert("RGB")
             
-            # Pra-pemrosesan Gambar (Resize 224x224)
+            # 1. KUNCI UKURAN: Paksa gambar di-resize ke kotak sempurna (300x300) agar simetris di web
+            web_display_img = image.resize((300, 300), Image.Resampling.LANCZOS)
+            
+            # Pra-pemrosesan Gambar untuk Model AI (tetap 224x224 sesuai arsitektur model)
             resized_img = image.resize((224, 224))
             img_array = np.array(resized_img, dtype=np.float32)
             input_data = np.expand_dims(img_array, axis=0)
@@ -87,21 +90,22 @@ if uploaded_images:
             output_data = interpreter.get_tensor(output_details[0]['index'])
             pred_class = class_names[output_data.argmax()]
             
-            # Menampilkan ke dalam Card Box di Setiap Kolom
+            # Menampilkan ke dalam Grid Kolom
             with cols[idx]:
+                # Membuka container box HTML utama (Bungkus semua jadi satu kesatuan)
                 st.markdown(f"""
-                    <div style="background-color:#FFFFFF; padding:12px; border-radius:10px; border:1px solid #E0E0E0; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); text-align:center;">
-                        <span style="font-weight:bold; color:#757575;">Sampah Ke-{i + idx + 1}</span>
-                    </div>
+                    <div style="background-color:#FFFFFF; padding:15px; border-radius:12px; border:1px solid #E0E0E0; box-shadow: 0px 4px 10px rgba(0,0,0,0.05); text-align:center; margin-bottom: 20px;">
+                        <span style="font-weight:bold; color:#424242; font-size:16px; display:block; margin-bottom:10px;">📦 Sampah Ke-{i + idx + 1}</span>
                 """, unsafe_allow_html=True)
                 
-                # Menampilkan Gambar
-                st.image(image, use_container_width=True)
+                # 2. TAMPILKAN GAMBAR: Menggunakan gambar yang sudah disamakan rasionya
+                st.image(web_display_img, use_container_width=True)
                 
-                # Menampilkan Label Hasil dengan Background Warna Hijau
+                # Menutup container box HTML dan menyatukan dengan Label Hasil di dalamnya
                 st.markdown(f"""
-                    <div style="background-color:#2E7D32; padding:8px; border-radius:8px; text-align:center; margin-bottom:20px;">
-                        <span style="color:white; font-weight:bold; font-size:15px;">👉 Kategori: {pred_class}</span>
+                        <div style="background-color:#2E7D32; padding:10px; border-radius:8px; text-align:center; margin-top:12px;">
+                            <span style="color:white; font-weight:bold; font-size:15px;">👉 Kategori: {pred_class}</span>
+                        </div>
                     </div>
                 """, unsafe_allow_html=True)
 else:
